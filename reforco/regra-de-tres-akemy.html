@@ -1,0 +1,2328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akemy — Domínio de Regra de Três & Velocidade</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Literata:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   TOKENS  —  paper + electric palette
+══════════════════════════════════════ */
+:root {
+  --paper:   #f8f5f0;
+  --paper2:  #efe9e0;
+  --paper3:  #e6ddd2;
+  --line:    #d8d0c4;
+  --ink:     #1a1614;
+  --ink2:    #3c3228;
+  --muted:   #8a7e70;
+
+  --blue:    #1856d4;
+  --blue2:   #0e3fa8;
+  --blue-lt: #e8eeff;
+  --blue-mid:#3a72f0;
+
+  --yell:    #f5c842;
+  --yell2:   #e8b820;
+  --yell-lt: #fffae8;
+
+  --red:     #e83030;
+  --red-lt:  #ffeaea;
+  --grn:     #1e9e50;
+  --grn-lt:  #e8fff0;
+  --orn:     #e87820;
+  --orn-lt:  #fff4e8;
+
+  --shadow:  0 2px 20px rgba(26,22,20,.09);
+  --shadow2: 0 8px 40px rgba(26,22,20,.14);
+  --r: 12px;
+}
+
+/* ══════════════════════════════════════
+   RESET
+══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Literata', serif;
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* graph-paper background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(24,86,212,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24,86,212,.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ══════════════════════════════════════
+   HERO
+══════════════════════════════════════ */
+.hero {
+  position: relative;
+  z-index: 1;
+  background: var(--blue2);
+  overflow: hidden;
+  padding: 0;
+}
+
+.hero-stripe {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--yell) 0px, var(--yell) 40px,
+    var(--blue-mid) 40px, var(--blue-mid) 80px
+  );
+}
+
+.hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.hero-body {
+  position: relative;
+  z-index: 2;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 56px 40px 52px;
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 40px;
+  align-items: center;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--yell);
+  margin-bottom: 14px;
+}
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 800;
+  line-height: 1.05;
+  color: #fff;
+  letter-spacing: -1px;
+  margin-bottom: 14px;
+}
+
+.hero-title .name { color: var(--yell); }
+.hero-title .topic { display: block; font-size: .65em; font-weight: 600; color: rgba(255,255,255,.6); margin-top: 6px; letter-spacing: 0; }
+
+.hero-desc {
+  font-size: 15px;
+  color: rgba(255,255,255,.65);
+  line-height: 1.75;
+  max-width: 460px;
+}
+
+/* science badges */
+.science-box {
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: var(--r);
+  padding: 20px;
+}
+
+.science-box-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--yell);
+  margin-bottom: 14px;
+}
+
+.sci-badge {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.sci-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(245,200,66,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sci-text strong {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 1px;
+}
+
+.sci-text span {
+  font-size: 11px;
+  color: rgba(255,255,255,.45);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ══════════════════════════════════════
+   NAV
+══════════════════════════════════════ */
+.sticky-nav {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  background: rgba(14,63,168,.97);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid var(--yell);
+}
+
+.nav-row {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-row::-webkit-scrollbar { display: none; }
+
+.nav-item {
+  padding: 12px 16px;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.45);
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all .2s;
+}
+.nav-item:hover { color: rgba(255,255,255,.8); }
+.nav-item.active { color: var(--yell); border-bottom-color: var(--yell); }
+
+/* ══════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════ */
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 40px 80px;
+}
+
+/* ══════════════════════════════════════
+   SECTION HEADS
+══════════════════════════════════════ */
+.sec {
+  padding-top: 72px;
+}
+
+.sec-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sec-eyebrow::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.sec-h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(22px, 3.5vw, 34px);
+  font-weight: 800;
+  letter-spacing: -.5px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.sec-sub {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 36px;
+  max-width: 600px;
+}
+
+/* ══════════════════════════════════════
+   ERROR DIAGNOSIS
+══════════════════════════════════════ */
+.error-card {
+  background: var(--red-lt);
+  border: 2px solid var(--red);
+  border-radius: var(--r);
+  padding: 28px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.error-card::before {
+  content: '✗';
+  position: absolute;
+  right: -10px;
+  top: -10px;
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(232,48,48,.08);
+  line-height: 1;
+  font-family: 'Syne', sans-serif;
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.error-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--red);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.error-header h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--red);
+}
+
+.question-repr {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.question-repr .q-text {
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+
+.opt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.opt-repr {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--paper);
+}
+
+.opt-repr.was-chosen { background: var(--red-lt); border-color: var(--red); }
+.opt-repr.is-correct { background: var(--grn-lt); border-color: var(--grn); font-weight: 600; }
+
+.opt-ltr {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: var(--paper3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.opt-repr.was-chosen .opt-ltr { background: var(--red); color: white; }
+.opt-repr.is-correct .opt-ltr { background: var(--grn); color: white; }
+
+/* why-wrong */
+.why-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.why-card {
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.why-wrong { background: rgba(232,48,48,.08); border: 1px solid rgba(232,48,48,.25); }
+.why-right { background: rgba(30,158,80,.08); border: 1px solid rgba(30,158,80,.25); }
+
+.why-card strong {
+  display: block;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 5px;
+}
+
+.why-wrong strong { color: var(--red); }
+.why-right strong { color: var(--grn); }
+
+/* ══════════════════════════════════════
+   MAGIC TRIANGLE (visual)
+══════════════════════════════════════ */
+.triangle-section {
+  background: var(--blue2);
+  color: white;
+  border-radius: var(--r);
+  padding: 36px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.triangle-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.06) 0%, transparent 60%);
+}
+
+.triangle-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.triangle-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  color: var(--yell);
+}
+
+.triangle-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,.7);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+/* the actual triangle SVG area */
+.triangle-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tri-svg-wrap {
+  position: relative;
+  width: 200px;
+  height: 180px;
+}
+
+.tri-cell {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-family: 'Syne', sans-serif;
+  cursor: pointer;
+  transition: transform .15s;
+}
+
+.tri-cell:hover { transform: scale(1.08); }
+
+.tri-top {
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 80px; height: 72px;
+  background: var(--yell);
+  color: var(--ink);
+}
+
+.tri-top:hover { transform: translateX(-50%) scale(1.08); }
+
+.tri-left {
+  bottom: 0; left: 0;
+  width: 90px; height: 72px;
+  background: rgba(255,255,255,.15);
+  border: 2px solid rgba(255,255,255,.3);
+  color: white;
+}
+
+.tri-right {
+  bottom: 0; right: 0;
+  width: 90px; height: 72px;
+  background: rgba(255,255,255,.15);
+  border: 2px solid rgba(255,255,255,.3);
+  color: white;
+}
+
+.tri-cell-letter {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.tri-cell-name {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: .75;
+  margin-top: 2px;
+}
+
+.tri-line-h {
+  position: absolute;
+  left: 90px; right: 90px;
+  top: 50%; transform: translateY(-50%);
+  height: 2px;
+  background: rgba(255,255,255,.2);
+}
+
+.tri-line-v {
+  position: absolute;
+  top: 72px; bottom: 0;
+  left: 50%; transform: translateX(-50%);
+  width: 2px;
+  background: rgba(255,255,255,.2);
+}
+
+.triangle-formulas {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tri-formula {
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.tri-formula:hover { background: rgba(255,255,255,.14); }
+
+.tri-formula .formula-label {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--yell);
+  min-width: 80px;
+}
+
+/* ══════════════════════════════════════
+   CARDS
+══════════════════════════════════════ */
+.card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+
+.card-h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════════
+   STEP-BY-STEP (worked examples)
+══════════════════════════════════════ */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 20px 0;
+}
+
+.step {
+  display: flex;
+  gap: 0;
+  position: relative;
+}
+
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 48px;
+  bottom: -12px;
+  width: 2px;
+  background: var(--line);
+}
+
+.step-bubble {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid var(--blue);
+  background: white;
+  color: var(--blue);
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 20px;
+  z-index: 1;
+  position: relative;
+  transition: all .2s;
+}
+
+.step:hover .step-bubble {
+  background: var(--blue);
+  color: white;
+}
+
+.step-body {
+  padding-bottom: 28px;
+  flex: 1;
+}
+
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--blue2);
+}
+
+.step-text {
+  font-size: 14px;
+  color: var(--ink2);
+  line-height: 1.65;
+}
+
+.step-code {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 10px;
+}
+
+.step-code .hl { color: var(--yell); font-weight: 700; }
+.step-code .ans { color: #7af0a8; font-weight: 700; }
+.step-code .cm { color: rgba(248,245,240,.35); }
+
+.step-visual {
+  background: var(--blue-lt);
+  border: 1px solid rgba(24,86,212,.2);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-top: 10px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ══════════════════════════════════════
+   3 WAYS TABLE (concrete)
+══════════════════════════════════════ */
+.three-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: var(--r);
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.three-table th {
+  padding: 12px 16px;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  text-align: left;
+}
+
+.three-table th.vel-head { background: var(--blue2); color: var(--yell); }
+.three-table th.rt-head  { background: #1a6b3a; color: #7af0a8; }
+.three-table th.inv-head { background: #7d2020; color: #ffaaaa; }
+
+.three-table td {
+  padding: 11px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  line-height: 1.6;
+}
+
+.three-table tr:last-child td { border-bottom: none; }
+.three-table tr:hover td { background: var(--paper2); }
+
+.three-table td.label-col {
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+  background: var(--paper2);
+  width: 120px;
+}
+
+/* ══════════════════════════════════════
+   TRAP CARDS (common mistakes)
+══════════════════════════════════════ */
+.traps-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.trap-card {
+  border-radius: var(--r);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.trap-card.danger {
+  background: var(--red-lt);
+  border: 1px solid rgba(232,48,48,.3);
+}
+
+.trap-card .trap-num {
+  position: absolute;
+  right: -5px;
+  top: -5px;
+  font-family: 'Syne', sans-serif;
+  font-size: 64px;
+  font-weight: 800;
+  color: rgba(232,48,48,.08);
+  line-height: 1;
+}
+
+.trap-card h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--red);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trap-card p {
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.trap-example {
+  background: rgba(232,48,48,.06);
+  border: 1px solid rgba(232,48,48,.2);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 8px;
+}
+
+.trap-fix {
+  background: var(--grn-lt);
+  border: 1px solid rgba(30,158,80,.2);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #1a7038;
+  margin-top: 6px;
+}
+
+/* ══════════════════════════════════════
+   SCAFFOLDED EXERCISES
+══════════════════════════════════════ */
+.level-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 24px;
+  border-radius: var(--r) var(--r) 0 0;
+  margin-bottom: -1px;
+}
+
+.level-badge {
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.level-1 .level-header { background: var(--blue2); color: white; }
+.level-1 .level-badge { background: rgba(255,255,255,.2); color: white; }
+
+.level-2 .level-header { background: #1a6b3a; color: white; }
+.level-2 .level-badge { background: rgba(255,255,255,.2); color: white; }
+
+.level-3 .level-header { background: var(--orn); color: white; }
+.level-3 .level-badge { background: rgba(255,255,255,.2); color: white; }
+
+.level-4 .level-header { background: var(--ink); color: white; }
+.level-4 .level-badge { background: var(--yell); color: var(--ink); }
+
+.level-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.level-desc { font-size: 12px; opacity: .7; }
+
+.level-body {
+  border: 1px solid var(--line);
+  border-radius: 0 0 var(--r) var(--r);
+  border-top: none;
+  padding: 24px;
+  margin-bottom: 24px;
+  background: white;
+}
+
+/* exercise item */
+.ex-item {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.ex-item:last-child { margin-bottom: 0; }
+
+.ex-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.ex-q {
+  font-size: 14px;
+  line-height: 1.65;
+  margin-bottom: 14px;
+}
+
+/* guided hints */
+.hint-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.hint-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--blue-lt);
+  border: 1px solid rgba(24,86,212,.15);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.hint-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.fill-blank {
+  border: none;
+  border-bottom: 2px solid var(--blue);
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--blue2);
+  width: 80px;
+  text-align: center;
+  padding: 2px 4px;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.fill-blank:focus { border-color: var(--yell2); }
+.fill-blank.correct { border-color: var(--grn); color: var(--grn); }
+.fill-blank.wrong { border-color: var(--red); color: var(--red); }
+
+/* options style */
+.opts { display: flex; flex-direction: column; gap: 7px; margin-top: 12px; }
+
+.opt-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: white;
+  cursor: pointer;
+  transition: all .18s;
+  font-size: 13px;
+  color: var(--ink2);
+  text-align: left;
+  width: 100%;
+  font-family: 'Literata', serif;
+}
+
+.opt-btn:hover { border-color: var(--blue); background: var(--blue-lt); }
+.opt-btn.c { background: var(--grn-lt); border-color: var(--grn); color: #1a5c30; }
+.opt-btn.w { background: var(--red-lt); border-color: var(--red); color: #7a1010; }
+
+.opt-l {
+  width: 22px; height: 22px;
+  border-radius: 4px;
+  background: var(--paper2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.opt-btn.c .opt-l { background: var(--grn); color: white; }
+.opt-btn.w .opt-l { background: var(--red); color: white; }
+
+.reveal-btn {
+  margin-top: 12px;
+  padding: 8px 18px;
+  background: transparent;
+  border: 1.5px solid var(--blue);
+  border-radius: 6px;
+  color: var(--blue);
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  cursor: pointer;
+  transition: all .18s;
+}
+.reveal-btn:hover { background: var(--blue); color: white; }
+
+.answer-reveal {
+  display: none;
+  margin-top: 12px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 8px;
+  padding: 16px 18px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.answer-reveal.open { display: block; }
+.answer-reveal .hl { color: var(--yell); font-weight: 700; }
+.answer-reveal code { font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,.1); padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+
+/* ══════════════════════════════════════
+   MASTERY TEST
+══════════════════════════════════════ */
+.mastery-section {
+  background: var(--ink);
+  margin: 0 -40px;
+  padding: 72px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mastery-section::before {
+  content: 'TESTE';
+  position: absolute;
+  right: -20px;
+  top: -20px;
+  font-family: 'Syne', sans-serif;
+  font-size: 160px;
+  font-weight: 800;
+  color: rgba(255,255,255,.03);
+  line-height: 1;
+}
+
+.mastery-inner { max-width: 840px; margin: 0 auto; position: relative; z-index: 1; }
+
+.mastery-section .sec-eyebrow { color: var(--yell); }
+.mastery-section .sec-eyebrow::after { background: rgba(255,255,255,.1); }
+.mastery-section .sec-h2 { color: white; }
+.mastery-section .sec-sub { color: rgba(255,255,255,.45); }
+
+.mastery-progress {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--r);
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.mp-score {
+  font-family: 'Syne', sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--yell);
+  line-height: 1;
+}
+
+.mp-label { font-size: 12px; color: rgba(255,255,255,.45); font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+
+.mp-bar-wrap {
+  flex: 1;
+  background: rgba(255,255,255,.08);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.mp-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--blue-mid), var(--yell));
+  transition: width .6s ease;
+  width: 0%;
+}
+
+.mp-status {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,.5);
+}
+
+.mastery-q {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--r);
+  padding: 22px 24px;
+  margin-bottom: 14px;
+}
+
+.mastery-q .ex-num { color: rgba(255,255,255,.3); }
+.mastery-q .ex-q { color: rgba(255,255,255,.85); }
+
+.mastery-q .opt-btn {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.7);
+}
+
+.mastery-q .opt-btn:hover {
+  border-color: var(--yell);
+  background: rgba(245,200,66,.1);
+  color: white;
+}
+
+.mastery-q .opt-btn.c { background: rgba(30,158,80,.2); border-color: rgba(30,158,80,.5); color: #7af0a8; }
+.mastery-q .opt-btn.w { background: rgba(232,48,48,.2); border-color: rgba(232,48,48,.5); color: #ffaaaa; }
+
+.mastery-q .opt-l { background: rgba(255,255,255,.08); color: rgba(255,255,255,.5); }
+.mastery-q .opt-btn.c .opt-l { background: var(--grn); color: white; }
+.mastery-q .opt-btn.w .opt-l { background: var(--red); color: white; }
+
+.mastery-q .reveal-btn { border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.5); }
+.mastery-q .reveal-btn:hover { background: rgba(255,255,255,.1); color: white; border-color: rgba(255,255,255,.4); }
+
+/* ══════════════════════════════════════
+   FLASHCARD
+══════════════════════════════════════ */
+.flashcard-area {
+  padding-top: 72px;
+}
+
+.flashcard-wrap {
+  perspective: 1000px;
+  width: 100%;
+  max-width: 500px;
+  height: 280px;
+  margin: 24px auto;
+  cursor: pointer;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .5s ease;
+}
+
+.flashcard-wrap.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.fc-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: var(--r);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+}
+
+.fc-front {
+  background: var(--blue2);
+  color: white;
+  border: 2px solid var(--blue-mid);
+}
+
+.fc-back {
+  background: white;
+  color: var(--ink);
+  border: 2px solid var(--yell2);
+  transform: rotateY(180deg);
+}
+
+.fc-face .fc-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  opacity: .5;
+  margin-bottom: 14px;
+}
+
+.fc-face .fc-main {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.fc-face .fc-sub {
+  font-size: 13px;
+  opacity: .6;
+  margin-top: 8px;
+}
+
+.fc-flip-hint {
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+.fc-nav {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.fc-btn {
+  padding: 8px 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--line);
+  background: white;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s;
+}
+
+.fc-btn:hover { border-color: var(--blue); color: var(--blue); }
+.fc-btn.active { background: var(--blue2); border-color: var(--blue2); color: white; }
+
+/* ══════════════════════════════════════
+   CHEAT SHEET / REFERENCE CARD
+══════════════════════════════════════ */
+.ref-card {
+  background: var(--yell-lt);
+  border: 2px solid var(--yell2);
+  border-radius: var(--r);
+  padding: 32px;
+  margin: 24px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.ref-card::after {
+  content: '📌';
+  position: absolute;
+  top: -10px;
+  right: 24px;
+  font-size: 36px;
+}
+
+.ref-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--yell2);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ref-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+.ref-item {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid rgba(232,184,32,.3);
+}
+
+.ref-item-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.ref-item-formula {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--blue2);
+  margin-bottom: 8px;
+}
+
+.ref-item-desc {
+  font-size: 12px;
+  color: var(--ink2);
+  line-height: 1.5;
+}
+
+/* ══════════════════════════════════════
+   MISC UTILS
+══════════════════════════════════════ */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+
+.info {
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  font-size: 14px;
+  border-left: 3px solid;
+  line-height: 1.65;
+}
+.info strong { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+.info-tip  { background: rgba(24,86,212,.07);  border-color: var(--blue);  }
+.info-tip strong  { color: var(--blue);  }
+.info-warn { background: rgba(232,48,48,.07);  border-color: var(--red);   }
+.info-warn strong { color: var(--red);   }
+.info-ok   { background: rgba(30,158,80,.07);  border-color: var(--grn);   }
+.info-ok strong   { color: var(--grn);   }
+.info-yell { background: rgba(232,184,32,.1);  border-color: var(--yell2); }
+.info-yell strong { color: #a07800; }
+
+footer {
+  position: relative;
+  z-index: 1;
+  background: var(--ink);
+  color: rgba(248,245,240,.3);
+  text-align: center;
+  padding: 28px 40px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .5px;
+}
+footer strong { color: var(--yell); }
+
+/* Responsivo */
+@media (max-width: 680px) {
+  .hero-body { grid-template-columns: 1fr; padding: 40px 20px; }
+  .wrap { padding: 0 20px 60px; }
+  .mastery-section { margin: 0 -20px; padding: 48px 20px; }
+  .two-col, .three-col, .opt-grid, .ref-grid, .traps-grid { grid-template-columns: 1fr; }
+  .triangle-content { grid-template-columns: 1fr; }
+  .nav-row { padding: 0 20px; }
+  .why-grid { grid-template-columns: 1fr; }
+}
+
+/* animations */
+@keyframes popIn {
+  from { opacity:0; transform: scale(.92) translateY(10px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+.hero-body > * { animation: popIn .5s ease forwards; opacity: 0; }
+.hero-body > *:nth-child(1) { animation-delay: .1s; }
+.hero-body > *:nth-child(2) { animation-delay: .3s; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-stripe"></div>
+  <div class="hero-grid-bg"></div>
+  <div class="hero-body">
+    <div>
+      <div class="hero-tag">🎯 Material de Reforço Personalizado</div>
+      <h1 class="hero-title">
+        <span class="name">Akemy</span>, você vai<br>dominar isso!
+        <span class="topic">Regra de Três · Velocidade · Proporções</span>
+      </h1>
+      <p class="hero-desc">Errar faz parte de aprender — mas errar e entender <em>por quê</em> errou é o que transforma o conhecimento. Este material foi construído com as melhores técnicas cientificamente validadas para fixar este tema de vez.</p>
+    </div>
+    <div class="science-box">
+      <div class="science-box-title">Métodos usados aqui</div>
+      <div class="sci-badge">
+        <div class="sci-icon">🧠</div>
+        <div class="sci-text">
+          <strong>Exemplos com Fading</strong>
+          <span>Sweller, 1988</span>
+        </div>
+      </div>
+      <div class="sci-badge">
+        <div class="sci-icon">🔁</div>
+        <div class="sci-text">
+          <strong>Prática de Recuperação</strong>
+          <span>Roediger & Karpicke, 2006</span>
+        </div>
+      </div>
+      <div class="sci-badge">
+        <div class="sci-icon">🪜</div>
+        <div class="sci-text">
+          <strong>Scaffolding Progressivo</strong>
+          <span>Vygotsky, ZDP</span>
+        </div>
+      </div>
+      <div class="sci-badge">
+        <div class="sci-icon">📊</div>
+        <div class="sci-text">
+          <strong>Dupla Codificação</strong>
+          <span>Paivio, 1971</span>
+        </div>
+      </div>
+      <div class="sci-badge">
+        <div class="sci-icon">🎯</div>
+        <div class="sci-text">
+          <strong>Análise de Erro</strong>
+          <span>Borasi, 1994</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="sticky-nav">
+  <div class="nav-row">
+    <a href="#diagnostico" class="nav-item active">🔍 Diagnóstico</a>
+    <a href="#fundacao" class="nav-item">📐 Fundação</a>
+    <a href="#tres-tipos" class="nav-item">🔢 3 Tipos</a>
+    <a href="#pratica-guiada" class="nav-item">🪜 Prática Guiada</a>
+    <a href="#armadilhas" class="nav-item">⚠️ Armadilhas</a>
+    <a href="#dominio" class="nav-item">🏆 Teste de Domínio</a>
+    <a href="#cartao" class="nav-item">📌 Cartão</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ══════════════════════════════════════
+     1. DIAGNÓSTICO DO ERRO
+══════════════════════════════════════ -->
+<section class="sec" id="diagnostico">
+  <div class="sec-eyebrow">Passo 01 · Análise Científica do Erro</div>
+  <h2 class="sec-h2">O que aconteceu na Q04?</h2>
+  <p class="sec-sub">Antes de resolver, precisamos entender exatamente onde a resposta saiu dos trilhos. Sem julgamento — só diagnóstico.</p>
+
+  <div class="error-card">
+    <div class="error-header">
+      <div class="error-icon">🔍</div>
+      <h3>A questão que você errou — Vestibulinho ETEC 2024, Q.40</h3>
+    </div>
+    <div class="question-repr">
+      <div class="q-text">Três jovens percorreram cerca de <strong>60 quilômetros</strong>, durante <strong>10 dias</strong>, até que finalmente encontraram ajuda após o acidente dos Andes. A velocidade do grupo para buscar ajuda é estimada em:</div>
+      <div class="opt-grid">
+        <div class="opt-repr is-correct"><span class="opt-l">A</span> ✓ 6,00 km/dia</div>
+        <div class="opt-repr"><span class="opt-l">B</span> 4,00 km/dia</div>
+        <div class="opt-repr"><span class="opt-l">C</span> 1,70 km/dia</div>
+        <div class="opt-repr"><span class="opt-l">D</span> 0,75 km/dia</div>
+        <div class="opt-repr was-chosen"><span class="opt-l">E</span> 0,25 km/h ← você escolheu</div>
+      </div>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card why-wrong">
+        <strong>❌ Por que E parece certo (mas não é)</strong>
+        A opção E (0,25 km/h) seria a resposta certa <em>se a pergunta pedisse km/h</em>. O cálculo 60 ÷ 10 = 6 km/dia → convertendo: 6 ÷ 24h = 0,25 km/h. O raciocínio estava certo — mas a unidade pedida era <strong>km/dia</strong>, não km/h!
+      </div>
+      <div class="why-card why-right">
+        <strong>✅ O caminho correto é simples</strong>
+        A pergunta pede a velocidade. A fórmula é Velocidade = Distância ÷ Tempo.<br>
+        v = 60 km ÷ 10 dias = <strong>6 km/dia.</strong><br>
+        A unidade do resultado deve combinar com a unidade do tempo dado (dias → km/dia).
+      </div>
+    </div>
+  </div>
+
+  <!-- Os 3 tipos de confusão -->
+  <div class="card">
+    <div class="card-h3">🧩 Os 3 erros mais comuns neste tipo de questão</div>
+    <div class="card-sub">Pesquisas em educação matemática mostram que estes padrões de erro se repetem em 80% dos alunos. Identificar o seu é o primeiro passo para superar.</div>
+    <div class="three-col">
+      <div class="info info-warn">
+        <strong>Erro de Unidade 🎯 (seu caso)</strong>
+        Calcular certo, mas ignorar a unidade que a questão pediu. A operação estava correta — mas a resposta precisa estar na unidade solicitada no enunciado.
+      </div>
+      <div class="info info-warn">
+        <strong>Inversão da divisão</strong>
+        Dividir tempo por distância em vez de distância por tempo. v = d/t, não v = t/d. O numerador é sempre o que você quer saber por unidade do denominador.
+      </div>
+      <div class="info info-warn">
+        <strong>Confusão direta/inversa</strong>
+        Usar regra de três direta onde é inversa (ou vice-versa). Ex: mais trabalhadores → menos dias (inversa!). Velocidade × tempo = distância (direta).
+      </div>
+    </div>
+  </div>
+
+  <div class="info info-ok">
+    <strong>💡 A Ciência do Erro (Borasi, 1994)</strong>
+    Erros não são falhas — são janelas para o raciocínio. Quando você errou por unidade, isso mostra que seu raciocínio matemático estava funcionando (0,25 = 6 ÷ 24 está correto!). O que faltou foi o hábito de reler a pergunta depois de calcular e verificar a unidade pedida. Isso se treina. E hoje você vai treinar.
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     2. FUNDAÇÃO — O TRIÂNGULO MÁGICO
+══════════════════════════════════════ -->
+<section class="sec" id="fundacao">
+  <div class="sec-eyebrow">Passo 02 · Dupla Codificação (Paivio, 1971)</div>
+  <h2 class="sec-h2">O Triângulo que resolve tudo</h2>
+  <p class="sec-sub">Antes de memorizar fórmulas, visualize a relação. Quando você tem uma imagem mental clara, o cálculo fica automático.</p>
+
+  <div class="triangle-section">
+    <div class="triangle-content">
+      <div>
+        <div class="triangle-title">O Triângulo D · V · T</div>
+        <p class="triangle-desc">
+          Toda questão de velocidade, distância ou tempo pode ser resolvida com este triângulo. Cubra a variável que você quer descobrir — o que sobrar é a operação.
+        </p>
+        <div class="triangle-formulas">
+          <div class="tri-formula">
+            <span class="formula-label">🏃 Velocidade</span>
+            <span>V = D ÷ T</span>
+          </div>
+          <div class="tri-formula">
+            <span class="formula-label">📍 Distância</span>
+            <span>D = V × T</span>
+          </div>
+          <div class="tri-formula">
+            <span class="formula-label">⏱️ Tempo</span>
+            <span>T = D ÷ V</span>
+          </div>
+        </div>
+        <div class="info info-yell" style="margin-top:16px;">
+          <strong>Regra de ouro</strong>
+          Cubra com o dedo a variável que quer descobrir. O que sobrar é a conta: D sobre (V × T) = divisão. V e T lado a lado = multiplicação.
+        </div>
+      </div>
+      <div class="triangle-visual">
+        <div class="tri-svg-wrap">
+          <!-- horizontal separator line -->
+          <div style="position:absolute;left:0;right:0;top:72px;height:2px;background:rgba(255,255,255,.15);"></div>
+          <!-- vertical separator -->
+          <div style="position:absolute;left:50%;top:72px;bottom:0;width:2px;background:rgba(255,255,255,.15);transform:translateX(-50%);"></div>
+
+          <div class="tri-cell tri-top" onclick="showFormula('vel')">
+            <div class="tri-cell-letter">D</div>
+            <div class="tri-cell-name">Distância</div>
+          </div>
+          <div class="tri-cell tri-left" onclick="showFormula('dist')">
+            <div class="tri-cell-letter">V</div>
+            <div class="tri-cell-name">Veloc.</div>
+          </div>
+          <div class="tri-cell tri-right" onclick="showFormula('tempo')">
+            <div class="tri-cell-letter">T</div>
+            <div class="tri-cell-name">Tempo</div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:rgba(255,255,255,.4);margin-top:10px;text-align:center;">← Clique em cada célula →</p>
+        <div id="tri-msg" style="margin-top:12px;background:rgba(255,255,255,.1);border-radius:8px;padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:13px;text-align:center;min-height:44px;transition:all .3s;color:white;">
+          Clique numa célula do triângulo ☝️
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Concrete examples -->
+  <div class="card">
+    <div class="card-h3">🏃 Visualizando de forma concreta</div>
+    <div class="card-sub">A Teoria da Aprendizagem Concreta-Pictórica-Abstrata (Bruner) mostra que entender primeiro com situações reais torna a abstração muito mais fácil.</div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-bubble">1</div>
+        <div class="step-body">
+          <div class="step-title">Situação real: você indo a pé até a escola</div>
+          <div class="step-text">Imagine que você caminha <strong>2 km</strong> até a escola e chega em <strong>30 minutos</strong>. Quantos km por hora você caminha?</div>
+          <div class="step-visual">
+            <div style="font-size:28px;">🚶‍♀️</div>
+            <div>
+              <div style="font-size:13px;color:var(--blue2);">Distância = 2 km &nbsp;·&nbsp; Tempo = 0,5 hora</div>
+              <div style="font-size:15px;font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--blue2);margin-top:4px;">V = 2 ÷ 0,5 = <span style="color:var(--red)">4 km/h</span></div>
+            </div>
+          </div>
+          <div class="info info-tip" style="margin-top:10px;">
+            <strong>Perceba a lógica</strong>
+            Se você faz 2 km em meia hora, em 1 hora inteira você faria o dobro: 4 km. Isso é intuição — a fórmula confirma o bom senso.
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-bubble">2</div>
+        <div class="step-body">
+          <div class="step-title">Situação da prova: os jovens nos Andes</div>
+          <div class="step-text">Os três jovens percorreram <strong>60 km</strong> em <strong>10 dias</strong>. Qual a velocidade média?</div>
+          <div class="step-code">
+<span class="cm">// O que sei?</span>
+D = <span class="hl">60 km</span>
+T = <span class="hl">10 dias</span>
+V = ?<br>
+<span class="cm">// Aplico o triângulo (cubro o V)</span>
+V = D ÷ T
+V = 60 ÷ 10
+V = <span class="ans">6 km/dia</span>  ← unidade combina com T!
+          </div>
+          <div class="info info-ok">
+            <strong>✅ Atenção à unidade!</strong>
+            O tempo estava em <strong>dias</strong>, então a velocidade é em <strong>km/dia</strong>. Se o tempo fosse em horas, seria km/h. A unidade do resultado SEMPRE segue a unidade do tempo.
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-bubble">3</div>
+        <div class="step-body">
+          <div class="step-title">O hábito que evita o erro de unidade</div>
+          <div class="step-text">Antes de marcar a resposta, leia o enunciado de volta e pergunte: <strong>"a questão pediu em que unidade?"</strong> Se pediu km/dia e você tem 6, marque 6. Se pediu km/h, converta: 6 km/dia ÷ 24 h = 0,25 km/h.</div>
+          <div class="step-visual">
+            <div style="font-size:24px;">✅</div>
+            <div style="font-size:14px;line-height:1.6;">
+              <strong>Checklist de 3 segundos:</strong><br>
+              1. Calculei certo? &nbsp; 2. A unidade que calculei bate com a pedida? &nbsp; 3. Escolhi a alternativa certa?
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     3. OS 3 TIPOS
+══════════════════════════════════════ -->
+<section class="sec" id="tres-tipos">
+  <div class="sec-eyebrow">Passo 03 · Mapeamento Completo</div>
+  <h2 class="sec-h2">Os 3 tipos de problema — aprenda a identificar</h2>
+  <p class="sec-sub">Toda questão de proporção do Vestibulinho se encaixa em um desses três tipos. Saber qual é o tipo antes de calcular elimina 80% dos erros.</p>
+
+  <table class="three-table">
+    <thead>
+      <tr>
+        <th class="label-col">Critério</th>
+        <th class="vel-head">⚡ Velocidade / Taxa</th>
+        <th class="rt-head">📈 Regra de Três Direta</th>
+        <th class="inv-head">📉 Regra de Três Inversa</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label-col">O que é</td>
+        <td>Quanto de algo por unidade de outra coisa</td>
+        <td>Mais de um → mais do outro</td>
+        <td>Mais de um → menos do outro</td>
+      </tr>
+      <tr>
+        <td class="label-col">Fórmula</td>
+        <td><strong>V = D ÷ T</strong><br>ou Taxa = Total ÷ Unidade</td>
+        <td>a₁/b₁ = a₂/b₂<br>(produto cruzado)</td>
+        <td>a₁ × b₁ = a₂ × b₂<br>(produtos iguais)</td>
+      </tr>
+      <tr>
+        <td class="label-col">Palavras-chave</td>
+        <td>velocidade, km por hora, litros por minuto, pessoas por cão</td>
+        <td>se… então…, proporcionalmente, mesmo ritmo</td>
+        <td>mais trabalhadores/menos dias, quanto mais… menos…</td>
+      </tr>
+      <tr>
+        <td class="label-col">Exemplo ETEC</td>
+        <td>60 km em 10 dias → 6 km/dia<br><em>2024, Q.40</em></td>
+        <td>207 cães : 6,5M pessoas → 1 : x pessoas<br><em>2026, Q.02</em></td>
+        <td>4 trabalhadores em 12 dias → 6 trabalhadores em ? dias<br><em>variação clássica</em></td>
+      </tr>
+      <tr>
+        <td class="label-col">Teste rápido</td>
+        <td>A pergunta tem "por" ou "cada"?</td>
+        <td>Dobrei um valor → dobrei o outro?</td>
+        <td>Dobrei um → reduzi o outro à metade?</td>
+      </tr>
+      <tr>
+        <td class="label-col">Método visual</td>
+        <td>Triângulo D·V·T<br>Cobre a que quer achar</td>
+        <td>Montagem em tabela:<br>a₁ → b₁<br>a₂ → x</td>
+        <td>Montagem invertida:<br>a₁ → b₂<br>a₂ → b₁</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card" style="margin-top:24px;">
+    <div class="card-h3">🧠 Como identificar o tipo em 10 segundos</div>
+    <div class="card-sub">Use este fluxograma mental antes de qualquer cálculo.</div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-bubble" style="border-color:var(--yell2);color:var(--yell2);">?</div>
+        <div class="step-body">
+          <div class="step-title" style="color:var(--ink2);">A questão usa a palavra "por", "cada" ou "taxa"?</div>
+          <div class="step-text">Ex: "km <strong>por</strong> hora", "litros <strong>por</strong> minuto", "pessoas <strong>para cada</strong> cão". Se sim → é problema de <strong>velocidade/taxa</strong>. Use V = D ÷ T (ou equivalente).</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-bubble" style="border-color:var(--grn);color:var(--grn);">↑</div>
+        <div class="step-body">
+          <div class="step-title" style="color:var(--grn);">Não tem "por"? Pergunta: se uma quantidade aumenta, a outra aumenta também?</div>
+          <div class="step-text">Se sim (mais km rodados → mais gasolina gasta) → <strong>Regra de três direta</strong>. Monte tabela e faça produto cruzado.</div>
+        </div>
+      </div>
+      <div class="step" style="--after-display:none;">
+        <div class="step-bubble" style="border-color:var(--red);color:var(--red);">↓</div>
+        <div class="step-body">
+          <div class="step-title" style="color:var(--red);">Se uma quantidade aumenta e a outra diminui?</div>
+          <div class="step-text">Mais trabalhadores → menos dias para terminar. Mais velocidade → menos tempo. → <strong>Regra de três inversa</strong>. Multiplique cruzado mas inverta uma das razões.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     4. PRÁTICA GUIADA — SCAFFOLDING
+══════════════════════════════════════ -->
+<section class="sec" id="pratica-guiada">
+  <div class="sec-eyebrow">Passo 04 · Scaffolding Progressivo (Vygotsky)</div>
+  <h2 class="sec-h2">Prática em 4 níveis de autonomia</h2>
+  <p class="sec-sub">A pesquisa mostra que aprender funciona melhor quando você começa com apoio total e vai ganhando independência gradualmente. Cada nível tira um andaime.</p>
+
+  <!-- NÍVEL 1 — completo guiado -->
+  <div class="level-1">
+    <div class="level-header">
+      <div>
+        <div class="level-badge">Nível 1 — Totalmente Guiado</div>
+        <div class="level-title">Eu mostro, você acompanha</div>
+      </div>
+      <div class="level-desc" style="margin-left:auto;">Complete os espaços em branco com o que o andaime indica</div>
+    </div>
+    <div class="level-body">
+      <div class="ex-item">
+        <div class="ex-num">Exercício 1.1</div>
+        <div class="ex-q">Uma tartaruga percorreu <strong>15 metros</strong> em <strong>3 horas</strong>. Qual é sua velocidade média?</div>
+        <div class="hint-chain">
+          <div class="hint-row">
+            <div class="hint-icon">📋</div>
+            <div>Identifico os dados: D = <strong>15 m</strong> &nbsp; T = <strong>3 h</strong> &nbsp; V = ?</div>
+          </div>
+          <div class="hint-row">
+            <div class="hint-icon">📐</div>
+            <div>Aplico a fórmula: V = D ÷ T = 15 ÷ 3 = <input class="fill-blank" id="e11" placeholder="?" onchange="checkBlank('e11','5','5 m/h')"> m/h</div>
+          </div>
+          <div class="hint-row">
+            <div class="hint-icon">✅</div>
+            <div>Verifico a unidade: o tempo estava em <strong>horas</strong>, então a velocidade é em <strong>m/h</strong>. ✓</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ex-item">
+        <div class="ex-num">Exercício 1.2</div>
+        <div class="ex-q">Um caminhão percorreu <strong>630 km</strong> em <strong>18 horas</strong>. Qual sua velocidade média em km/h?</div>
+        <div class="hint-chain">
+          <div class="hint-row">
+            <div class="hint-icon">📋</div>
+            <div>D = <strong>630 km</strong> &nbsp; T = <strong>18 h</strong> &nbsp; V = ?</div>
+          </div>
+          <div class="hint-row">
+            <div class="hint-icon">📐</div>
+            <div>V = D ÷ T = 630 ÷ 18 = <input class="fill-blank" id="e12" placeholder="?" onchange="checkBlank('e12','35','35 km/h')"> km/h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NÍVEL 2 — parcialmente guiado -->
+  <div class="level-2">
+    <div class="level-header">
+      <div>
+        <div class="level-badge">Nível 2 — Parcialmente Guiado</div>
+        <div class="level-title">Você escolhe a alternativa certa</div>
+      </div>
+      <div class="level-desc" style="margin-left:auto;">Os dados estão identificados. Monte a conta e escolha</div>
+    </div>
+    <div class="level-body">
+
+      <div class="ex-item">
+        <div class="ex-num">Exercício 2.1 · Atenção à unidade!</div>
+        <div class="ex-q">Uma manada de gnus percorreu <strong>240 km</strong> em <strong>4 dias</strong>. Um grupo humano fez o mesmo percurso em <strong>6 dias</strong>. Qual foi a velocidade da manada em km/dia?</div>
+        <div class="opts">
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">A</span> 40 km/dia — resultado de 240 ÷ 6 (errado: usou o tempo dos humanos!)</button>
+          <button class="opt-btn" onclick="pick(this,'c')"><span class="opt-l">B</span> 60 km/dia — resultado de 240 ÷ 4 (correto: tempo da manada)</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">C</span> 10 km/dia — resultado de 60 ÷ 6 (confundiu valores)</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">D</span> 2,5 km/dia — resultado de 10 ÷ 4 (operação errada)</button>
+        </div>
+        <button class="reveal-btn" onclick="toggleAns(this)">Ver explicação</button>
+        <div class="answer-reveal">
+          <strong class="hl">Resposta: B (60 km/dia) ✅</strong><br><br>
+          A manada levou <code>4 dias</code> para percorrer <code>240 km</code>.<br>
+          V = 240 ÷ 4 = <strong class="hl">60 km/dia</strong><br><br>
+          A armadilha aqui era usar o tempo dos humanos (6 dias) — o enunciado deu dois tempos diferentes. Sempre identifique de qual grupo estão pedindo a velocidade!
+        </div>
+      </div>
+
+      <div class="ex-item">
+        <div class="ex-num">Exercício 2.2 · Regra de Três Direta</div>
+        <div class="ex-q">Se 207 cães-guia atendem 6.500.000 pessoas com deficiência visual, quantas pessoas são atendidas por <strong>1 cão-guia</strong>?</div>
+        <div class="opts">
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">A</span> 1 para cada 20.700</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">B</span> 1 para cada 30.500</button>
+          <button class="opt-btn" onclick="pick(this,'c')"><span class="opt-l">C</span> 1 para cada 31.400</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">D</span> 1 para cada 207.000</button>
+        </div>
+        <button class="reveal-btn" onclick="toggleAns(this)">Ver explicação</button>
+        <div class="answer-reveal">
+          <strong class="hl">Resposta: C ✅</strong><br><br>
+          207 cães → 6.500.000 pessoas<br>
+          1 cão &nbsp; → <code>x</code> pessoas<br><br>
+          x = 6.500.000 ÷ 207 ≈ <strong class="hl">31.400 pessoas/cão</strong><br><br>
+          Esta é uma taxa simples: divida o total pela quantidade. Mesma lógica do triângulo D/V/T — aqui "pessoas por cão" é a taxa!
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NÍVEL 3 — semi-independente -->
+  <div class="level-3">
+    <div class="level-header">
+      <div>
+        <div class="level-badge">Nível 3 — Semi-independente</div>
+        <div class="level-title">Você monta e resolve</div>
+      </div>
+      <div class="level-desc" style="margin-left:auto;">Apenas o enunciado — sem andaimes. Depois veja a resolução</div>
+    </div>
+    <div class="level-body">
+
+      <div class="ex-item">
+        <div class="ex-num">Exercício 3.1</div>
+        <div class="ex-q">Um abelha voa a <strong>25 km/h</strong>. Quanto tempo ela leva para percorrer <strong>10 km</strong>? (Dica: isole T no triângulo)</div>
+        <div class="opts">
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">A</span> 2,5 horas</button>
+          <button class="opt-btn" onclick="pick(this,'c')"><span class="opt-l">B</span> 0,4 horas (= 24 minutos)</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">C</span> 250 horas</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">D</span> 0,04 horas</button>
+        </div>
+        <button class="reveal-btn" onclick="toggleAns(this)">Ver resolução</button>
+        <div class="answer-reveal">
+          <strong class="hl">Resposta: B ✅</strong><br><br>
+          Dados: V = 25 km/h, D = 10 km, T = ?<br>
+          T = D ÷ V = 10 ÷ 25 = <strong class="hl">0,4 horas</strong><br>
+          Em minutos: 0,4 × 60 = 24 minutos.<br><br>
+          Perceba: quando queremos T, cobrimos o T no triângulo — sobra D em cima de V → T = D ÷ V.
+        </div>
+      </div>
+
+      <div class="ex-item">
+        <div class="ex-num">Exercício 3.2 · Direto da prova ETEC</div>
+        <div class="ex-q">Um agulhão-bandeira pode chegar a <strong>110 km/h</strong>. Considerando essa velocidade constante por <strong>3 minutos</strong>, qual distância o peixe percorre (em metros)?<br><small style="color:var(--muted);">Dica: 3 min = 3/60 hora = 0,05 hora. Depois converta km → metros.</small></div>
+        <div class="opts">
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">A</span> 330 m</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">B</span> 1.100 m</button>
+          <button class="opt-btn" onclick="pick(this,'c')"><span class="opt-l">C</span> 5.500 m</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">D</span> 18.000 m</button>
+        </div>
+        <button class="reveal-btn" onclick="toggleAns(this)">Ver resolução</button>
+        <div class="answer-reveal">
+          <strong class="hl">Resposta: C (5.500 m) ✅</strong><br><br>
+          V = 110 km/h &nbsp; T = 3 min = 3/60 h = 0,05 h &nbsp; D = ?<br>
+          D = V × T = 110 × 0,05 = <strong class="hl">5,5 km</strong><br>
+          Convertendo: 5,5 km × 1000 = <strong class="hl">5.500 metros</strong><br><br>
+          <strong>Passos críticos:</strong> 1) converter minutos para horas antes de calcular; 2) converter km para metros depois. Etapas fora de ordem geram erros!
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- NÍVEL 4 — Totalmente independente -->
+  <div class="level-4">
+    <div class="level-header">
+      <div>
+        <div class="level-badge">Nível 4 — Totalmente Independente</div>
+        <div class="level-title">Prova real, estilo ETEC, sem apoio</div>
+      </div>
+      <div class="level-desc" style="margin-left:auto;">Resolva como na prova. Só olhe o gabarito depois.</div>
+    </div>
+    <div class="level-body">
+
+      <div class="ex-item">
+        <div class="ex-num">Exercício 4.1 · Adaptado de ETEC 2018</div>
+        <div class="ex-q">Um ciclista percorre <strong>30 km nos primeiros 15 minutos</strong> e depois mantém <strong>20 km/h pelos próximos 30 minutos</strong>. Qual é a distância total percorrida em 45 minutos?</div>
+        <div class="opts">
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">A</span> 30 km</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">B</span> 40 km</button>
+          <button class="opt-btn" onclick="pick(this,'c')"><span class="opt-l">C</span> 40 km</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">D</span> 50 km</button>
+          <button class="opt-btn" onclick="pick(this,'w')"><span class="opt-l">E</span> 60 km</button>
+        </div>
+        <button class="reveal-btn" onclick="toggleAns(this)">Ver resolução</button>
+        <div class="answer-reveal">
+          <strong class="hl">Resposta: C (40 km) ✅</strong><br><br>
+          <strong>Trecho 1:</strong> 30 km em 15 min → dado diretamente.<br>
+          <strong>Trecho 2:</strong> V = 20 km/h, T = 30 min = 0,5 h → D = 20 × 0,5 = <strong>10 km</strong><br>
+          <strong>Total:</strong> 30 + 10 = <strong class="hl">40 km</strong><br><br>
+          Cuidado: dois trechos = dois cálculos. Some os resultados no final.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════
+     5. ARMADILHAS
+══════════════════════════════════════ -->
+<section class="sec" id="armadilhas">
+  <div class="sec-eyebrow">Passo 05 · Análise de Erros (Borasi, 1994)</div>
+  <h2 class="sec-h2">As 4 armadilhas que a ETEC usa</h2>
+  <p class="sec-sub">A prova é construída para induzir erros específicos. Conhecer as armadilhas de antemão transforma você de alvo em caçadora.</p>
+
+  <div class="traps-grid">
+    <div class="trap-card danger">
+      <div class="trap-num">1</div>
+      <h4>⚠️ A Armadilha da Unidade</h4>
+      <p>A questão dá dados em uma unidade (dias) e uma alternativa errada usa outra (horas). Você calcula certo mas escolhe a unidade errada.</p>
+      <div class="trap-example">
+        Pergunta: velocidade em km/dia<br>
+        Calculou: 6 km/dia ✓<br>
+        Errou: escolheu 0,25 km/h ← conversão não pedida
+      </div>
+      <div class="trap-fix">
+        ✅ Sempre releia: "a questão pediu em qual unidade?"<br>
+        Se pediu km/dia → dê km/dia. Fim.
+      </div>
+    </div>
+
+    <div class="trap-card danger">
+      <div class="trap-num">2</div>
+      <h4>⚠️ A Armadilha do Valor Bonito</h4>
+      <p>Uma alternativa tem um número "bonitinho" que parece certo mas é resultado de uma operação errada (dividiu ao contrário).</p>
+      <div class="trap-example">
+        60 km em 10 dias<br>
+        Resultado certo: 6 km/dia<br>
+        Armadilha: 10 ÷ 60 = 0,166... (invertido!)
+      </div>
+      <div class="trap-fix">
+        ✅ Sempre: Velocidade = Distância ÷ Tempo (D em cima!)
+      </div>
+    </div>
+
+    <div class="trap-card danger">
+      <div class="trap-num">3</div>
+      <h4>⚠️ A Armadilha dos Dois Sujeitos</h4>
+      <p>O problema tem dois sujeitos com dados diferentes. A questão pergunta sobre um, e a alternativa errada usa o valor do outro.</p>
+      <div class="trap-example">
+        Manada: 240 km em 4 dias → 60 km/dia<br>
+        Humanos: 240 km em 6 dias → 40 km/dia<br>
+        Armadilha: perguntou da manada, você usou os 6 dias!
+      </div>
+      <div class="trap-fix">
+        ✅ Sublinhe no enunciado de qual sujeito a questão fala.
+      </div>
+    </div>
+
+    <div class="trap-card danger">
+      <div class="trap-num">4</div>
+      <h4>⚠️ A Armadilha da Conversão</h4>
+      <p>O enunciado mistura unidades intencionalmente (km/h e minutos). Quem calcula sem converter erra a conta toda.</p>
+      <div class="trap-example">
+        V = 110 km/h, T = 3 minutos<br>
+        Erro: D = 110 × 3 = 330 km (absurdo!)<br>
+        3 minutos ≠ 3 horas!
+      </div>
+      <div class="trap-fix">
+        ✅ Antes de calcular: todas as unidades de tempo estão iguais? Se não, converta primeiro!
+      </div>
+    </div>
+  </div>
+
+  <!-- Mnemônico -->
+  <div class="ref-card" style="background:var(--blue-lt);border-color:rgba(24,86,212,.3);margin-top:24px;">
+    <div class="ref-title" style="color:var(--blue2);">🧠 Mnemônico: o "DUSC" antes de marcar</div>
+    <div class="ref-grid">
+      <div class="ref-item" style="border-color:rgba(24,86,212,.2);">
+        <div class="ref-item-label">D</div>
+        <div class="ref-item-formula" style="font-size:24px;">D</div>
+        <div class="ref-item-desc"><strong>Dados identificados?</strong><br>Eu sei o que é D, V e T nesta questão?</div>
+      </div>
+      <div class="ref-item" style="border-color:rgba(24,86,212,.2);">
+        <div class="ref-item-label">U</div>
+        <div class="ref-item-formula" style="font-size:24px;">U</div>
+        <div class="ref-item-desc"><strong>Unidades iguais?</strong><br>Todos os tempos estão na mesma unidade?</div>
+      </div>
+      <div class="ref-item" style="border-color:rgba(24,86,212,.2);">
+        <div class="ref-item-label">S</div>
+        <div class="ref-item-formula" style="font-size:24px;">S</div>
+        <div class="ref-item-desc"><strong>Sujeito certo?</strong><br>A conta usa os dados do sujeito certo?</div>
+      </div>
+    </div>
+    <div class="ref-item" style="margin-top:12px;border-color:rgba(24,86,212,.2);">
+      <div class="ref-item-label">C</div>
+      <div class="ref-item-formula" style="font-size:24px; display:inline;">C</div>
+      <div class="ref-item-desc" style="display:inline;margin-left:12px;"><strong>Confere a unidade pedida?</strong> Meu resultado está na unidade que a questão pediu?</div>
+    </div>
+  </div>
+</section>
+
+<!-- FLASHCARDS -->
+<section class="sec flashcard-area" id="flashcards">
+  <div class="sec-eyebrow">Passo 06 · Recuperação Ativa (Roediger & Karpicke, 2006)</div>
+  <h2 class="sec-h2">Flashcards — teste sua memória</h2>
+  <p class="sec-sub">A recuperação ativa é 2× mais eficiente do que releitura. Veja a frente, tente lembrar, depois vire o cartão. Isso fixa de verdade.</p>
+
+  <div class="flashcard-wrap" id="fc" onclick="flipCard()">
+    <div class="flashcard-inner">
+      <div class="fc-face fc-front">
+        <div class="fc-label">← Clique para virar →</div>
+        <div class="fc-main" id="fc-front-text">V = ?</div>
+        <div class="fc-sub" id="fc-front-sub">Como calcular velocidade?</div>
+      </div>
+      <div class="fc-face fc-back">
+        <div class="fc-label">Resposta</div>
+        <div class="fc-main" id="fc-back-text" style="font-family:'JetBrains Mono',monospace;color:var(--blue2);">V = D ÷ T</div>
+        <div class="fc-sub" id="fc-back-sub">Distância dividido por Tempo<br>Unidade: combina com T</div>
+      </div>
+    </div>
+  </div>
+  <p class="fc-flip-hint">Clique no cartão para virar · Use os botões para navegar</p>
+
+  <div class="fc-nav">
+    <button class="fc-btn" onclick="prevCard()">← Anterior</button>
+    <button class="fc-btn active" id="fc-counter">1 / 6</button>
+    <button class="fc-btn" onclick="nextCard()">Próximo →</button>
+  </div>
+</section>
+
+</div><!-- /wrap -->
+
+<!-- ══════════════════════════════════════
+     TESTE DE DOMÍNIO (fundo escuro)
+══════════════════════════════════════ -->
+<section class="mastery-section" id="dominio">
+  <div class="mastery-inner">
+    <div class="sec-eyebrow">Passo 07 · Teste de Domínio — Mastery Learning (Bloom, 1968)</div>
+    <h2 class="sec-h2" style="color:white;">Prova você mesma: 7 questões</h2>
+    <p class="sec-sub">Acertar 6 de 7 (≥ 85%) significa que você dominou o tema. Menos que isso, volte ao nível que está errando. Seja honesta!</p>
+
+    <div class="mastery-progress">
+      <div>
+        <div class="mp-score" id="score-display">0/7</div>
+        <div class="mp-label">acertos</div>
+      </div>
+      <div style="flex:1">
+        <div class="mp-label" style="margin-bottom:8px;">Progresso do domínio</div>
+        <div class="mp-bar-wrap"><div class="mp-bar" id="mp-bar"></div></div>
+      </div>
+      <div class="mp-status" id="mp-status">Comece a responder ↓</div>
+    </div>
+
+    <!-- Q1 -->
+    <div class="mastery-q">
+      <div class="ex-num">QUESTÃO 01 · Velocidade Básica</div>
+      <div class="ex-q">Uma capivara nada <strong>48 km</strong> em <strong>6 horas</strong>. Qual é sua velocidade média?</div>
+      <div class="opts">
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">A</span> 8 km/h</button>
+        <button class="opt-btn" onclick="score(this,'c','8 km/h')"><span class="opt-l">B</span> 8 km/h</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">C</span> 0,125 km/h</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">D</span> 42 km/h</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">E</span> 288 km/h</button>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="mastery-q">
+      <div class="ex-num">QUESTÃO 02 · Atenção à Unidade</div>
+      <div class="ex-q">Gnus migraram <strong>240 km em 4 dias</strong>. Qual é a velocidade em km/dia?</div>
+      <div class="opts">
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">A</span> 40 km/dia</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">B</span> 4 km/dia</button>
+        <button class="opt-btn" onclick="score(this,'c','60 km/dia')"><span class="opt-l">C</span> 60 km/dia</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">D</span> 10 km/dia</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">E</span> 2,5 km/dia</button>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="mastery-q">
+      <div class="ex-num">QUESTÃO 03 · Encontrar Distância</div>
+      <div class="ex-q">Um peixe nada a <strong>15 km/h</strong> por <strong>2 horas</strong>. Qual distância percorreu?</div>
+      <div class="opts">
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">A</span> 7,5 km</button>
+        <button class="opt-btn" onclick="score(this,'c','30 km')"><span class="opt-l">B</span> 30 km</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">C</span> 17 km</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">D</span> 0,13 km</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">E</span> 13 km</button>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="mastery-q">
+      <div class="ex-num">QUESTÃO 04 · Conversão de Unidades</div>
+      <div class="ex-q">Um agulhão voa a <strong>110 km/h</strong>. Em <strong>30 minutos</strong>, qual distância percorre?</div>
+      <div class="opts">
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">A</span> 3.300 km</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">B</span> 220 km</button>
+        <button class="opt-btn" onclick="score(this,'c','55 km')"><span class="opt-l">C</span> 55 km</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">D</span> 3,67 km</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">E</span> 330 km</button>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="mastery-q">
+      <div class="ex-num">QUESTÃO 05 · Encontrar Tempo</div>
+      <div class="ex-q">Uma tartaruga marinha precisa percorrer <strong>1.200 km</strong> para migrar. Ela nada a <strong>6 km/h</strong>. Quantas horas de viagem?</div>
+      <div class="opts">
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">A</span> 7.200 h</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">B</span> 600 h</button>
+        <button class="opt-btn" onclick="score(this,'c','200 h')"><span class="opt-l">C</span> 200 h</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">D</span> 1.206 h</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">E</span> 0,005 h</button>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="mastery-q">
+      <div class="ex-num">QUESTÃO 06 · Regra de Três Direta</div>
+      <div class="ex-q">Se uma fotossíntese usa <strong>44g de CO₂</strong> para produzir <strong>30g de glicose</strong>, quantos gramas de glicose são produzidos com <strong>66g de CO₂</strong>?</div>
+      <div class="opts">
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">A</span> 40 g</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">B</span> 48 g</button>
+        <button class="opt-btn" onclick="score(this,'c','45 g')"><span class="opt-l">C</span> 45 g</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">D</span> 50 g</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">E</span> 60 g</button>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div class="mastery-q">
+      <div class="ex-num">QUESTÃO 07 · EXATAMENTE como no Vestibulinho</div>
+      <div class="ex-q" style="line-height:1.8;">Três jovens percorreram cerca de <strong>60 quilômetros</strong>, durante <strong>10 dias</strong>, até encontrar ajuda após o acidente na Cordilheira dos Andes. A velocidade do grupo para buscar ajuda é estimada em:</div>
+      <div class="opts">
+        <button class="opt-btn" onclick="score(this,'c','6 km/dia')"><span class="opt-l">A</span> 6,00 km/dia</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">B</span> 4,00 km/dia</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">C</span> 1,70 km/dia</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">D</span> 0,75 km/h</button>
+        <button class="opt-btn" onclick="score(this,'w')"><span class="opt-l">E</span> 0,25 km/h</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CARTÃO REFERÊNCIA -->
+<div class="wrap">
+  <section class="sec" id="cartao">
+    <div class="sec-eyebrow">Material de Apoio</div>
+    <h2 class="sec-h2">Cartão de Bolso — cole ou salve</h2>
+    <p class="sec-sub">Este cartão resume tudo que você aprendeu hoje. Imprima, fotografe ou cole na capa do caderno.</p>
+
+    <div class="ref-card">
+      <div class="ref-title">📌 Regra de Três & Velocidade — Resumo de Domínio</div>
+      <div class="ref-grid">
+        <div class="ref-item">
+          <div class="ref-item-label">Velocidade</div>
+          <div class="ref-item-formula">V = D ÷ T</div>
+          <div class="ref-item-desc">Distância ÷ Tempo.<br>Unidade: acompanha o T.<br>T em dias → km/dia.</div>
+        </div>
+        <div class="ref-item">
+          <div class="ref-item-label">Distância</div>
+          <div class="ref-item-formula">D = V × T</div>
+          <div class="ref-item-desc">Velocidade × Tempo.<br>Converter T antes!<br>min → h ÷ 60.</div>
+        </div>
+        <div class="ref-item">
+          <div class="ref-item-label">Tempo</div>
+          <div class="ref-item-formula">T = D ÷ V</div>
+          <div class="ref-item-desc">Distância ÷ Velocidade.<br>Unidades devem<br>ser compatíveis.</div>
+        </div>
+        <div class="ref-item">
+          <div class="ref-item-label">R3 Direta</div>
+          <div class="ref-item-formula">a/b = c/x</div>
+          <div class="ref-item-desc">x = (b×c)÷a<br>Mais A → Mais B<br>Produto cruzado.</div>
+        </div>
+        <div class="ref-item">
+          <div class="ref-item-label">Conversões</div>
+          <div class="ref-item-formula" style="font-size:12px;">min → h: ÷60<br>h → min: ×60<br>km → m: ×1000</div>
+          <div class="ref-item-desc">Converta ANTES<br>de calcular!</div>
+        </div>
+        <div class="ref-item" style="background:var(--yell-lt);border-color:rgba(232,184,32,.5);">
+          <div class="ref-item-label">Checklist DUSC</div>
+          <div class="ref-item-formula" style="font-size:18px;">DUSC</div>
+          <div class="ref-item-desc"><strong>D</strong>ados · <strong>U</strong>nidades · <strong>S</strong>ujeito · <strong>C</strong>onferência</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensagem final -->
+    <div style="margin-top:32px;background:var(--blue2);border-radius:var(--r);padding:32px;color:white;display:flex;gap:20px;align-items:center;">
+      <div style="font-size:48px;flex-shrink:0;">🌟</div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--yell);margin-bottom:8px;">Akemy, você fez a coisa certa!</div>
+        <div style="font-size:14px;color:rgba(255,255,255,.7);line-height:1.7;">Errar uma questão e usar o erro para aprender de verdade é o que separa quem passa de quem não passa. Você acabou de estudar este tema com a mesma metodologia usada nos melhores programas de ensino do mundo. Na próxima prova, quando aparecer uma questão de velocidade, você vai sorrir — porque vai lembrar exatamente o que fazer. Agora vamos para o Dia 02! 🚀</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  Material de Reforço Personalizado para <strong>Akemy</strong> · Regra de Três & Velocidade · Cronograma Vestibulinho ETEC 2026
+</footer>
+
+<script>
+/* ─── pick option ─── */
+function pick(el, type) {
+  const group = el.closest('.opts');
+  group.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('c','w'));
+  el.classList.add(type);
+}
+
+/* ─── mastery score ─── */
+let correct = 0;
+let answered = 0;
+const total = 7;
+const scored = new Set();
+
+function score(el, type) {
+  const q = el.closest('.mastery-q');
+  const qIdx = [...document.querySelectorAll('.mastery-q')].indexOf(q);
+  if (scored.has(qIdx)) return;
+  scored.add(qIdx);
+
+  q.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  el.classList.add(type);
+  el.disabled = false;
+
+  if (type === 'c') correct++;
+  answered++;
+
+  // update display
+  document.getElementById('score-display').textContent = correct + '/' + total;
+  document.getElementById('mp-bar').style.width = (correct/total*100) + '%';
+
+  const pct = Math.round(correct/total*100);
+  const status = document.getElementById('mp-status');
+  if (answered < total) {
+    status.textContent = answered + ' respondida(s)...';
+  } else {
+    if (pct >= 85) {
+      status.textContent = '🏆 DOMÍNIO ALCANÇADO!';
+      status.style.color = '#7af0a8';
+      document.getElementById('mp-bar').style.background = 'linear-gradient(90deg,#1e9e50,#7af0a8)';
+    } else if (pct >= 70) {
+      status.textContent = '💪 Quase lá! Revise os erros.';
+      status.style.color = '#f5c842';
+    } else {
+      status.textContent = '🔁 Volte ao nível que errou!';
+      status.style.color = '#ff8080';
+    }
+  }
+}
+
+/* ─── toggle answer ─── */
+function toggleAns(btn) {
+  const ans = btn.nextElementSibling;
+  const open = ans.classList.contains('open');
+  ans.classList.toggle('open', !open);
+  btn.textContent = open ? 'Ver resolução' : 'Ocultar';
+}
+
+/* ─── fill blank check ─── */
+function checkBlank(id, expected, label) {
+  const el = document.getElementById(id);
+  const val = el.value.trim().replace(',','.');
+  if (parseFloat(val) === parseFloat(expected)) {
+    el.classList.add('correct');
+    el.classList.remove('wrong');
+  } else if (val !== '') {
+    el.classList.add('wrong');
+    el.classList.remove('correct');
+  }
+}
+
+/* ─── triangle click ─── */
+function showFormula(type) {
+  const msg = document.getElementById('tri-msg');
+  const formulas = {
+    vel:   '🏃 V = D ÷ T  →  Cubriu o V',
+    dist:  '📍 D = V × T  →  Cubriu o D',
+    tempo: '⏱️ T = D ÷ V  →  Cubriu o T'
+  };
+  msg.textContent = formulas[type];
+  msg.style.background = 'rgba(245,200,66,.2)';
+  msg.style.border = '1px solid rgba(245,200,66,.4)';
+  setTimeout(() => {
+    msg.style.background = 'rgba(255,255,255,.1)';
+    msg.style.border = 'none';
+  }, 2000);
+}
+
+/* ─── flashcards ─── */
+const cards = [
+  { front: 'V = ?', frontSub: 'Fórmula da Velocidade', back: 'V = D ÷ T', backSub: 'Distância dividido por Tempo\nUnidade acompanha o Tempo' },
+  { front: 'D = ?', frontSub: 'Fórmula da Distância', back: 'D = V × T', backSub: 'Velocidade multiplicado por Tempo\nConverter T antes!' },
+  { front: 'T = ?', frontSub: 'Fórmula do Tempo', back: 'T = D ÷ V', backSub: 'Distância dividido por Velocidade\nResultado em h, dias, min…' },
+  { front: '60 km em 10 dias\nV = ?', frontSub: 'A questão que você errou!', back: 'V = 60 ÷ 10 = 6 km/dia', backSub: 'Tempo em dias → resultado em km/dia\nNão converta se não pediu!' },
+  { front: 'min → horas?', frontSub: 'Conversão de tempo', back: 'horas = minutos ÷ 60', backSub: '30 min = 30÷60 = 0,5 h\n3 min = 3÷60 = 0,05 h' },
+  { front: 'DUSC', frontSub: 'Checklist antes de marcar', back: 'D·U·S·C', backSub: 'Dados · Unidades · Sujeito · Confere unidade pedida' },
+];
+
+let fcIdx = 0;
+
+function updateCard() {
+  const c = cards[fcIdx];
+  const wrap = document.getElementById('fc');
+  wrap.classList.remove('flipped');
+  setTimeout(() => {
+    document.getElementById('fc-front-text').textContent = c.front;
+    document.getElementById('fc-front-sub').textContent = c.frontSub;
+    document.getElementById('fc-back-text').textContent = c.back;
+    document.getElementById('fc-back-sub').textContent = c.backSub;
+    document.getElementById('fc-counter').textContent = (fcIdx+1) + ' / ' + cards.length;
+  }, 250);
+}
+
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIdx = (fcIdx+1) % cards.length; updateCard(); }
+function prevCard() { fcIdx = (fcIdx-1+cards.length) % cards.length; updateCard(); }
+
+/* ─── sticky nav active ─── */
+const secs = document.querySelectorAll('section[id]');
+const navItems = document.querySelectorAll('.nav-item');
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      navItems.forEach(n => n.classList.toggle('active', n.getAttribute('href') === '#'+id));
+    }
+  });
+}, { threshold: .3 });
+secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
