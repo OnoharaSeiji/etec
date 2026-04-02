@@ -863,6 +863,122 @@ body::before {
 .next-banner .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
 
 /* ══════════════════════════════════
+   APOSTILA NAV
+══════════════════════════════════ */
+.apostila-nav {
+  position: relative;
+  z-index: 10;
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+
+.apostila-nav-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px 44px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-family: 'Archivo', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  border: 1.5px solid;
+  transition: all .2s;
+  white-space: nowrap;
+}
+
+.nav-btn-prev {
+  border-color: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.4);
+  background: transparent;
+  justify-content: flex-start;
+}
+
+.nav-btn-prev:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(45,186,110,.08);
+}
+
+.nav-btn-prev.disabled {
+  opacity: .2;
+  pointer-events: none;
+}
+
+.nav-btn-next {
+  border-color: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.4);
+  background: transparent;
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.nav-btn-next:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(45,186,110,.08);
+}
+
+.nav-btn-next.disabled {
+  opacity: .2;
+  pointer-events: none;
+}
+
+.nav-btn-center {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(45,186,110,.1);
+  justify-content: center;
+  padding: 12px 28px;
+}
+
+.nav-btn-center:hover {
+  background: var(--accent);
+  color: var(--ink);
+  border-color: var(--accent);
+}
+
+.nav-btn-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-btn-label .btn-sub {
+  font-size: 10px;
+  font-weight: 500;
+  opacity: .55;
+  letter-spacing: .5px;
+}
+
+.nav-btn-label .btn-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .apostila-nav-inner {
+    grid-template-columns: 1fr;
+    padding: 16px 20px;
+    gap: 8px;
+  }
+  .nav-btn-prev, .nav-btn-next, .nav-btn-center {
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+  }
+}
+
+/* ══════════════════════════════════
    MISC
 ══════════════════════════════════ */
 footer {
@@ -1823,6 +1939,33 @@ mark {
     </div>
   </div>
 </section>
+
+<!-- APOSTILA NAV -->
+<nav class="apostila-nav">
+  <div class="apostila-nav-inner">
+
+    <a class="nav-btn nav-btn-prev" href="dia-01.html">
+      ←
+      <div class="nav-btn-label">
+        <span class="btn-sub">Apostila anterior</span>
+        <span class="btn-title">Dia 01 — Port · Mat · His</span>
+      </div>
+    </a>
+
+    <a class="nav-btn nav-btn-center" href="../cronograma/cronograma-etec-2026.html">
+      🗓️ &nbsp; Cronograma
+    </a>
+
+    <a class="nav-btn nav-btn-next disabled" href="#">
+      <div class="nav-btn-label">
+        <span class="btn-sub">Próxima apostila</span>
+        <span class="btn-title">Dia 03 — em breve</span>
+      </div>
+      →
+    </a>
+
+  </div>
+</nav>
 
 <footer>
   Apostila <strong>Dia 02 de 255</strong> · Gêneros Textuais · A Célula · Espaço Geográfico · Vestibulinho ETEC 2026
